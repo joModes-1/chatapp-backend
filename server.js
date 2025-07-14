@@ -4,9 +4,10 @@ const fs = require('fs');                          //fs for read, write, create,
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const path = require('path');                       //Join or parse file paths
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT; 
 const http = require('http');
 const { Server } = require('socket.io');
 
