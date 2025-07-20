@@ -1,71 +1,82 @@
-const db = require('./config/db');
 const express = require('express');
-const fs = require('fs');                          //fs for read, write, create, delete files
-const userRoutes = require('./routes/userRoutes');
-const chatRoutes = require('./routes/chatRoutes');
-const path = require('path');                       //Join or parse file paths
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
+const cors = require('cors');
 require('dotenv').config();
 
-const app = express();
-const PORT = process.env.PORT; 
-const http = require('http');
-const { Server } = require('socket.io');
+const db = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
-const cors = require('cors');
-app.use(cors());
+const app = express();
+const PORT = process.env.PORT || 4000;
+
+// ✅ Allow frontend domain (Vercel) — REQUIRED for CORS and Socket.IO
+app.use(cors({
+  origin: 'https://chatapp-frontend-steel-eight.vercel.app',
+  credentials: true
+}));
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ✅ Health check for Render
 app.get('/', (req, res) => {
-  res.send("Here render first file like login");
+  res.send("✅ Render backend is running");
 });
 
 app.use('/', userRoutes);
 app.use('/chat', chatRoutes);
 
+// ✅ HTTP server for Socket.IO
 const server = http.createServer(app);
+
+// ✅ Socket.IO with correct CORS config
+const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+    origin: 'https://chatapp-frontend-steel-eight.vercel.app',
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
-// Track connected users: userId => socketId
+// ✅ Store online users (userId => socketId)
 const users = {};
 
 io.on('connection', (socket) => {
   console.log('✅ User connected:', socket.id);
 
-  // Store the mapping between userId and socketId
   socket.on('register', (userId) => {
     users[userId] = socket.id;
     console.log(`User ${userId} registered with socket ${socket.id}`);
   });
 
-  socket.on('typing', (data) => {
-    const { senderId, receiverId } = data;
+  socket.on('typing', ({ senderId, receiverId }) => {
     const receiverSocket = users[receiverId];
     if (receiverSocket) {
-      io.to(receiverSocket).emit('typing', { senderId, receiverId });
+      io.to(receiverSocket).emit('typing', { senderId });
     }
   });
 
-  socket.on('stopTyping', (data) => {
-    const { senderId, receiverId } = data;
+  socket.on('stopTyping', ({ senderId, receiverId }) => {
     const receiverSocket = users[receiverId];
     if (receiverSocket) {
-      io.to(receiverSocket).emit('stopTyping', { senderId, receiverId });
+      io.to(receiverSocket).emit('stopTyping', { senderId });
     }
   });
 
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+    const { receiverId } = msg;
+    const receiverSocket = users[receiverId];
+    if (receiverSocket) {
+      io.to(receiverSocket).emit('chat message', msg);
+    }
   });
 
   socket.on('disconnect', () => {
     console.log('❌ User disconnected:', socket.id);
-    // Remove from users object
     for (const [userId, socketId] of Object.entries(users)) {
       if (socketId === socket.id) {
         delete users[userId];
@@ -75,6 +86,7 @@ io.on('connection', (socket) => {
   });
 });
 
+// ✅ Start the server
 server.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
