@@ -5,7 +5,7 @@ const chatController = require('../controllers/chatController');
 
 // Post message route
 router.post('/send', (req, res) => {
-  chatController.sendMessage(req, res, req.io);
+  chatController.sendMessages(req, res, req.io);
 });
 
 // app.use('/uploads', express.static('uploads'));
