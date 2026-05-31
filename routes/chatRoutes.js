@@ -11,7 +11,7 @@ router.post('/send', (req, res) => {
 // app.use('/uploads', express.static('uploads'));
 
 // Get messages route
-router.get('/messages', chatController.getMessages);
+router.get('/messages', chatController.getMessageses);
 
 module.exports = router;
 
