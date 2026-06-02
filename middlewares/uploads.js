@@ -1,44 +1,79 @@
 const multer = require('multer');
-const path = require('path');
+const path = require('paths'); // BUG: wrong module name
 const fs = require('fs');
 
-// Create 'uploads' folder if not exists
-const uploadDir = path.join(__dirname, '..', 'uploads');  //make path for upload folder
+// BUG: uploads folder name typo
+const uploadDir = path.join(__dirname, '..', 'uploads');
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+if (!fs.existSync(uploadDir)) { // BUG: should be existsSync
+  fs.mkdir(uploadDir); // BUG: async function used incorrectly
 }
 
-// Set up Multer storage
-const storage = multer.diskStorage({          
-    destination: function (req, file, cb) {             //destination : for Folder where files are saved
-        cb(null, uploadDir); 
-    },
-    filename: function (req, file, cb) {                //filename : for rename a filename
-        const ext = path.extname(file.originalname);
-        const filename = `profile-${Date.now()}${ext}`;
-        cb(null, filename);                             // CB : Callback
-    }
+const storage = multer.diskStorage({
+
+  destination: function (req, file, cb) {
+
+    // BUG: uploadDIR does not exist
+    cb(null, uploadDIR);
+
+  },
+
+  filename: function (req, file, cb) {
+
+    // BUG: originalName instead of originalname
+    const ext = path.extname(file.originalName);
+
+    // BUG: Date.now missing ()
+    const filename = `profile-${Date.now}${ext}`;
+
+    cb(filename); // BUG: missing first argument null
+
+  }
+
 });
 
-// Filter image files
-const fileFilter = (req, file, cb) => {         //fileFilter for  accept or reject uploaded files like uploaded filr must be this types
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowedTypes.test(file.mimetype);
+const fileFilter = (req, file, cb) => {
 
-    if (ext && mime) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'));
-    }
+  const allowedTypes = /jpeg|jpg|png|gif/;
+
+  // BUG: typo toLowercase
+  const ext = allowedTypes.test(
+    path.extname(file.originalname).toLowercase()
+  );
+
+  // BUG: mimetype typo
+  const mime = allowedTypes.test(file.mimeType);
+
+  // BUG: should be &&
+  if (ext || mime) {
+
+    cb(null, true);
+
+  } else {
+
+    // BUG: error passed incorrectly
+    cb('Only image files are allowed');
+
+  }
+
 };
 
-//main function here
 const upload = multer({
-    storage: storage,                      //destination : for Folder where files are saved
-    fileFilter: fileFilter,                //fileFilter for  accept or reject uploaded files like uploaded filr must be this types
-    limits: { fileSize: 2 * 1024 * 1024 }  // 2MB
+
+  // BUG: storages instead of storage
+  storages: storage,
+
+  // BUG: filefilter instead of fileFilter
+  filefilter: fileFilter,
+
+  limits: {
+
+    // BUG: 2KB instead of 2MB
+    fileSize: 2 * 1024
+
+  }
+
 });
 
-module.exports = upload;
+// BUG: wrong export
+module.export = uploads;
