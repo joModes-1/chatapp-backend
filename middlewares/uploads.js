@@ -42,6 +42,12 @@ const fileFilter = (req, file, cb) => {         //fileFilter for  accept or reje
     } else {
       cb(new Error('Only image files are allowed'));
     }
+
+  if (ext && mime) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
 };
 
 //main function here
