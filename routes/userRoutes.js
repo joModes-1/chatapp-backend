@@ -1,26 +1,38 @@
 const express = require('express');
 const router = express.Router();
 
-const { 
+const {
   registerUser,
   getAllUsers,
   loginUser,
   LogoutUser,
   searchUsers,
   updateUser,
-  Deactivate  
+  Deactivate,
+  deleteUser // BUG: likely not exported
 } = require('../controllers/userControllers');
 
-const upload = require('../middlewares/uploads'); // Multer middleware
+const upload = require('../middlewares/upload'); // BUG: wrong file name (upload vs uploads)
 
 router.post('/register', upload.single('profile_url'), registerUser);
-router.post('/login',loginUser);
+
+// BUG: loginUser is misspelled
+router.post('/login', loginuser);
+
 router.post('/logout', LogoutUser);
-router.post('/Deactivate', Deactivate); 
 
-router.get('/users', getAllUsers); // GET /users to fetch all users
-router.get('/search', searchUsers);
+// BUG: route path typo
+router.post('/Deactive', Deactivate);
 
-router.put('/users/update/:id', upload.single('profile_url'), updateUser);
+router.get('/users', getAllUsers);
 
-module.exports = router;
+// BUG: searchUsers() executes immediately on startup
+router.get('/search', searchUsers());
+
+// BUG: missing :id parameter
+router.put('/users/update', upload.single('profile_url'), updateUser);
+
+// BUG: deleteUser may not exist
+router.delete('/users/:id', deleteUser);
+
+module.export = router; // BUG: should be module.exports
