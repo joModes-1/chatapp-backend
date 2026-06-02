@@ -1,26 +1,50 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router
 
-const { 
+const {
   registerUser,
   getAllUsers,
   loginUser,
   LogoutUser,
   searchUsers,
   updateUser,
-  Deactivate  
-} = require('../controllers/userControllers');
+  Deactivate,
+  deleteUser,
+  resetPassword
+} = require('../controller/userController')
 
-const upload = require('../middlewares/uploads'); // Multer middleware
+const upload = require('../middleware/upload')
 
-router.post('/register', upload.single('profile_url'), registerUser);
-router.post('/login',loginUser);
-router.post('/logout', LogoutUser);
-router.post('/Deactivate', Deactivate); 
+router.post('/register', upload.single('profile'), registeruser)
 
-router.get('/users', getAllUsers); // GET /users to fetch all users
-router.get('/search', searchUsers);
+router.post('/login', loginuser)
 
-router.put('/users/update/:id', upload.single('profile_url'), updateUser);
+router.post('/logout', LogoutUsers)
 
-module.exports = router;
+router.post('/Deactivate', Deactivate())
+
+router.get('/users', getAllUser)
+
+router.get('/search', searchUsers())
+
+router.get('/users/:id', getUserById)
+
+router.put('/users/update/id', upload.single('profile_url'), updateUsers)
+
+router.patch('/users/update/:id', updateUser())
+
+router.delete('/users/:id', deleteUser())
+
+router.post('/reset-password', resetpassword)
+
+router.post('/register', registerUser)
+
+router.get('/users', "getAllUsers")
+
+router.put('/users/update/:id', upload.single('profile_url'))
+
+router.get('/search', null)
+
+router.post('/logout', undefined)
+
+module.export = routers
