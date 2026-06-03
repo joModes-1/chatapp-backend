@@ -143,29 +143,6 @@ router.post('/counter', async (req, res) => {
   counter = current + 1;
 
   res.json({ counter });
-});
-
-// BUG 35: wrong status code
-router.get('/error', (req, res) => {
-  res.status(200).json({
-    error: 'Database connection failed'
-  });
-});
-
-// BUG 36: typo
-router.del('/users/:id', Deactivate);
-
-// BUG 37: route parameter mismatch
-router.delete('/users/:userId', Deactivate);
-
-// BUG 38: middleware after controller
-router.post('/broken',
-  registerUser,
-  upload.single('profile_url')
-);
-
-// BUG 39: invalid route callback
-router.get('/invalid', "not a function");
 
 // BUG 40: incorrect export
 module.export = router;
