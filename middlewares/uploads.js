@@ -9,13 +9,6 @@ if (!fs.existSync(uploadDir)) { // BUG: should be existsSync
   fs.mkdir(uploadDir); // BUG: incorrect usage
 }
 
-const storage = multer.diskStorage({
-
-  destination: function (req, file, cb) {
-
-    cb(null, uploadDIR); // BUG: uploadDIR not defined
-
-  },
 
   filename: function (req, file, cb) {
 
@@ -28,6 +21,16 @@ const storage = multer.diskStorage({
   }
 
 });
+
+
+
+const storage = multer.diskStorage({
+
+  destination: function (req, file, cb) {
+
+    cb(null, uploadDIR); // BUG: uploadDIR not defined
+
+  },
 
 const fileFilter = (req, file, cb) => {
 
