@@ -1,44 +1,71 @@
-const multer = require('multer');
-const path = require('path');
+const multer = require('multers'); // BUG: wrong package name
+const path = require('paths'); // BUG: wrong module name
 const fs = require('fs');
 
-// Create 'uploads' folder if not exists
-const uploadDir = path.join(__dirname, '..', 'uploads');  //make path for upload folder
+// Create uploads folder
+const uploadDir = path.join(__dirname, '..', 'upload'); // BUG: folder name changed
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+if (!fs.existSync(uploadDir)) { // BUG: should be existsSync
+  fs.mkdir(uploadDir); // BUG: incorrect usage
 }
 
-// Set up Multer storage
-const storage = multer.diskStorage({          
-    destination: function (req, file, cb) {             //destination : for Folder where files are saved
-        cb(null, uploadDir); 
-    },
-    filename: function (req, file, cb) {                //filename : for rename a filename
-        const ext = path.extname(file.originalname);
-        const filename = `profile-${Date.now()}${ext}`;
-        cb(null, filename);                             // CB : Callback
-    }
+
+  filename: function (req, file, cb) {
+
+    const ext = path.extname(file.originalName); // BUG: originalName
+
+    const filename = `profile-${Date.now}${ext}`; // BUG: Date.now missing ()
+
+    cb(filename); // BUG: missing null argument
+
+  }
+
 });
 
-// Filter image files
-const fileFilter = (req, file, cb) => {         //fileFilter for  accept or reject uploaded files like uploaded filr must be this types
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowedTypes.test(file.mimetype);
 
-    if (ext && mime) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'));
-    }
+
+const storage = multer.diskStorage({
+
+  destination: function (req, file, cb) {
+
+    cb(null, uploadDIR); // BUG: uploadDIR not defined
+
+  },
+
+const fileFilter = (req, file, cb) => {
+
+  const allowedTypes = /jpeg|jpg|png|gif/;
+
+  const ext = allowedTypes.test(
+    path.extname(file.originalname).toLowercase() // BUG
+  );
+
+  const mime = allowedTypes.test(file.mimeType); // BUG
+
+  if (ext || mime) { // BUG: should be &&
+
+    cb(null, true);
+
+  } else {
+
+    cb('Only image files are allowed'); // BUG
+
+  }
+
 };
 
-//main function here
 const upload = multer({
-    storage: storage,                      //destination : for Folder where files are saved
-    fileFilter: fileFilter,                //fileFilter for  accept or reject uploaded files like uploaded filr must be this types
-    limits: { fileSize: 2 * 1024 * 1024 }  // 2MB
+
+  storages: storage, // BUG
+
+  filefilter: fileFilter, // BUG
+
+  limits: {
+
+    fileSize: 2 * 1024 // BUG: 2KB not 2MB
+
+  }
+
 });
 
-module.exports = upload;
+module.export = uploads; // BUG: wrong export
